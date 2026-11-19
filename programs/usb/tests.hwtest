@@ -1,0 +1,10 @@
+# program usb  (247 image bytes)
+# source: /home/wzhang20/Documents/protocol-emulator-compiler/examples/usb.spt
+# pins: dp=uio0, dm=uio1
+
+test sends_a_data_packet
+skip needs device usb_host `host_port` (no board equivalent yet)
+
+test sends_packets_back_to_back
+skip needs device usb_host `host_port` (no board equivalent yet)
+end

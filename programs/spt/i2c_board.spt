@@ -1,0 +1,90 @@
+// I2C controller for the KV260 board, on the Pmod I2C pins (Digilent / Tiny
+// Tapeout top row): SCL uio2, SDA uio3, open drain, 100 kHz.
+// Controller logic is protocol-emulator-compiler/examples/i2c.spt; only the pin
+// placement and the tests differ. The FPGA's internal pull-ups are enough at
+// 100 kHz for short wires; Pmod sensor boards usually add their own.
+
+clock 50 MHz
+const HALF = 250 cycles   // half an SCL period: 100 kHz
+
+pin scl @ 2: open_drain = scl_drive
+pin sda @ 3: open_drain = sda_bits.out
+
+event byte_go, cond_go
+
+// SCL follows the pattern while one plays; otherwise the byte clock, or its resting level.
+reg scl_drive init 1 = if pattern.busy { pattern.out } else { byte_clock.out || !rest_low }
+reg rest_low = if pattern.busy { !pattern.out } else { rest_low }
+reg sda_start = byte_go || cond_go
+reg sda_step = byte_clock.fall || cond_clock.tick
+reg in_byte = sda_bits.busy && !pattern.busy
+reg stretched = pattern.out && !scl   // a device holds SCL low during a pattern
+
+// Both clocks freeze while a device stretches SCL low.
+timer byte_clock { every: HALF, idle: 0, run: in_byte until sda_bits.done, hold: !scl }
+timer cond_clock { every: HALF, idle: 1, pulse, run: pattern.busy until pattern.done, hold: stretched }
+
+shifter sda_bits { idle: 1, start: sda_start, shift: sda_step }
+shifter pattern { start: cond_go, shift: cond_clock.tick }
+
+// Play an SDA pattern and an SCL pattern together, one slot per half period.
+fn condition(sda: bits, scl: bits) {
+    sda_bits.set { frame: [data(len(sda))] }
+    sda_bits.load(sda)
+    pattern.set { frame: [data(len(scl))] }
+    pattern.load(scl)
+    fire cond_go
+    wait pattern.done
+    wait sda_bits.done
+}
+
+fn start() { condition(sda: [0, 0], scl: [1, 0]) }
+fn restart() { condition(sda: [1, 1, 0, 0], scl: [0, 1, 1, 0]) }
+fn stop() { condition(sda: [0, 0, 1], scl: [0, 1, 1]) }
+
+// Eight bits MSB first, then a ninth: released (1) to read an acknowledge, or our own.
+fn byte(value: u8, ninth: bit) {
+    sda_bits.set { frame: [data(8, msb_first), ninth], sample: sda at scl.rise }
+    sda_bits.load(value)
+    fire byte_go
+    wait sda_bits.done
+}
+
+fn write(value: u8) {
+    byte(value, ninth: 1)
+    if sda_bits.post_bits & 1 == 1 {
+        stop()
+        fail "nack"
+    }
+}
+
+fn read(last: bit) {
+    byte(0xFF, ninth: last)
+    reply sda_bits.received
+}
+
+// Write `payload`, then read `count` bytes back in the same transaction.
+export fn write_read(address: u7, payload: bytes, count: u8 in 1..=16) -> bytes {
+    start()
+    write(address << 1)
+    for b in payload { write(b) }
+    restart()
+    write(address << 1 | 1)
+    repeat count - 1 { read(last: 0) }
+    read(last: 1)
+    stop()
+}
+
+// ─── tests ───────────────────────────────────────────────
+
+// Needs nothing on the bus: only the pull-ups answer, so the address is NACKed.
+test "an absent address is reported" {
+    expect write_read(0x3A, [0x00], 1) fails "nack"
+}
+
+// On the board `sensor` is a real ADT7420 (Digilent Pmod TMP2, address 0x4B,
+// register 0x0B = ID 0xCB); see i2c_board.board.
+test "reads the ADT7420 ID register" {
+    attach i2c_target(scl: scl, sda: sda, address: 0x4B, registers: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xCB]) as sensor
+    expect write_read(0x4B, [0x0B], 1) == [0xCB]
+}

@@ -1,0 +1,3 @@
+independent_UART_peer_sees_the_XOR_checksum
+XOR_checksum_verifies_on_receive
+bad_XOR_checksum_is_reported

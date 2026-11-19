@@ -1,0 +1,2 @@
+# Peers that are real parts on the board: peer <name> <device id> <what to connect>
+peer sensor i2c_adt7420 ADT7420 at 0x4B on SCL uio2 / SDA uio3, e.g. Digilent Pmod TMP2

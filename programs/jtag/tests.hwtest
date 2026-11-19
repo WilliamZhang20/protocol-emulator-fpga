@@ -1,0 +1,10 @@
+# program jtag  (154 image bytes)
+# source: /home/wzhang20/Documents/protocol-emulator-compiler/examples/jtag.spt
+# pins: tck=uio0, tms=uio1, tdi=uio2, tdo=uio3
+
+test reset_and_read_a_32-bit_IDCODE
+skip needs device jtag_tap `tap` (no board equivalent yet)
+
+test select_IR_and_write_and_read_the_user_DR
+skip needs device jtag_tap `tap` (no board equivalent yet)
+end

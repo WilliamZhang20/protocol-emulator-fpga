@@ -1,0 +1,7 @@
+# program swd  (228 image bytes)
+# source: /home/wzhang20/Documents/protocol-emulator-compiler/examples/swd.spt
+# pins: swclk=uio0, swdio=uio1
+
+test line_reset,_switch,_DP_read,_SELECT_write_and_readback
+skip needs device swd_target `target` (no board equivalent yet)
+end

@@ -1,0 +1,10 @@
+# program ps2  (23 image bytes)
+# source: /home/wzhang20/Documents/protocol-emulator-compiler/examples/ps2.spt
+# pins: psclk=uio0, psdata=uio1
+
+test keyboard_make_and_break_codes
+skip needs device ps2_keyboard `keyboard` (no board equivalent yet)
+
+test all-zero_all-one_and_alternating_data_at_another_clock_rate
+skip needs device ps2_keyboard `keyboard` (no board equivalent yet)
+end

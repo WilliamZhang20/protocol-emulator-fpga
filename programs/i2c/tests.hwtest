@@ -1,0 +1,13 @@
+# program i2c  (514 image bytes)
+# source: /home/wzhang20/Documents/protocol-emulator-compiler/examples/i2c.spt
+# pins: scl=uio0, sda=uio1
+
+test reads_a_register
+skip needs device i2c_target `sensor` (no board equivalent yet)
+
+test an_absent_device_is_reported
+skip needs device i2c_target `sensor` (no board equivalent yet)
+
+test waits_for_a_device_that_stretches_the_clock
+skip needs device i2c_target `slow` (no board equivalent yet)
+end

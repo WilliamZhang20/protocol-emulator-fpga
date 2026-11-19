@@ -1,0 +1,17 @@
+# Generated build and simulation output
+/build/
+/build_vivado/
+/sim/*.vvp
+/sim/*.fst
+/sim/*.log
+/sim/*.vcd
+/dist/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+
+# Vivado generated files
+.Xil/
+*.jou
+*.str

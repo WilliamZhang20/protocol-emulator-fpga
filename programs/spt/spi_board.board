@@ -1,0 +1,2 @@
+# Peers that are real parts on the board: peer <name> <device id> <what to connect>
+peer flash spi_flash SPI NOR flash on Pmod top row (CS uio0, MOSI uio1, MISO uio2, SCK uio3), e.g. Digilent Pmod SF3

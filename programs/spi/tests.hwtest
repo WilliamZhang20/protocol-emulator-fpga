@@ -1,0 +1,11 @@
+# program spi  (156 image bytes)
+# source: /home/wzhang20/Documents/protocol-emulator-compiler/examples/spi.spt
+# pins: cs=uio0, sck=uio1, mosi=uio2, miso=uio3
+# `always` invariants are checked in RTL simulation only, not on the board
+
+test exchanges_bytes_with_a_device
+skip needs device spi_device `device` (no board equivalent yet)
+
+test back-to-back_transactions
+skip needs device spi_device `device` (no board equivalent yet)
+end

@@ -1,0 +1,3 @@
+internal_loopback_32_bytes
+stream_256_bytes_through_8_deep_fifos
+jumper_wire_loopback
