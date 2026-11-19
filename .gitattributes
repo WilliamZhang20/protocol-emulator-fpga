@@ -1,0 +1,2 @@
+# Simulation waveforms are generated artifacts, not F* source code.
+*.fst linguist-detectable=false
